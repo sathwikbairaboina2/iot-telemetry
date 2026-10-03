@@ -1,0 +1,37 @@
+{
+  "alerts": [
+    {
+      "alertId": "veh-9001:depot-north:ENTERED:1791100941000",
+      "type": "ENTERED",
+      "vehicleId": "veh-9001",
+      "geofenceId": "depot-north",
+      "confirmedAt": 1791100941000,
+      "triggerEventId": null
+    },
+    {
+      "alertId": "veh-9001:depot-north:EXITED:1791101041000",
+      "type": "EXITED",
+      "vehicleId": "veh-9001",
+      "geofenceId": "depot-north",
+      "confirmedAt": 1791101041000,
+      "triggerEventId": null
+    }
+  ],
+  "stats": {
+    "received": 400,
+    "valid": 400,
+    "quarantined": 0,
+    "schemaViolations": 0,
+    "geofenceEvents": 14,
+    "naiveAlerts": 7,
+    "alerts": 2,
+    "duplicateDeliveries": 0,
+    "outcomes": {
+      "applied": 14,
+      "redundant": 0,
+      "duplicate": 0,
+      "late_ignored": 0,
+      "tick": 122
+    }
+  }
+}
