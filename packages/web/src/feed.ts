@@ -1,4 +1,4 @@
-import { connect } from 'mqtt';
+import mqtt from 'mqtt';
 import type { Alert } from '@iot-telemetry/alert-core';
 import type { Telemetry } from '@iot-telemetry/schema';
 import type { FleetAction, GeoFeatureCollection } from './state.js';
@@ -24,7 +24,7 @@ function parse(payload: Uint8Array): unknown {
 /** Subscribes to the four topics and turns messages into reducer actions. Returns a disposer. */
 export function connectFeed(url: string, dispatch: (a: FleetAction) => void, onConn: (s: ConnState) => void = () => {}): () => void {
   onConn('connecting');
-  const client = connect(url, { reconnectPeriod: 2000 });
+  const client = mqtt.connect(url, { reconnectPeriod: 2000 });
   client.on('connect', () => {
     onConn('live');
     client.subscribe(['fleet/+/telemetry', 'fleet/+/status', 'fleet/alerts', 'fleet/geofences'], { qos: 1 });
