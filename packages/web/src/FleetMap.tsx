@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { Map as MlMap, type GeoJSONSource } from 'maplibre-gl';
+import { Map as MlMap, setWorkerUrl, type GeoJSONSource } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { FleetState } from './state.js';
 
 const TILE_URL: string = import.meta.env?.VITE_TILE_URL ?? 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const CENTER: [number, number] = [11.5755, 48.1374];
+
+// MapLibre 6 ships its worker as separate files; vite.config.ts serves and emits them under /maplibre/.
+setWorkerUrl(`${import.meta.env.BASE_URL}maplibre/maplibre-gl-worker.mjs`);
+
+const dark = typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
 const empty = { type: 'FeatureCollection' as const, features: [] };
 
@@ -18,12 +23,15 @@ export function FleetMap({ state, onSelect }: Props) {
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<MlMap | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
   const select = useRef(onSelect);
   select.current = onSelect;
 
   useEffect(() => {
     if (!el.current) return;
-    const m: MlMap = new MlMap({
+    let m: MlMap;
+    try {
+      m = new MlMap({
       container: el.current,
       center: CENTER,
       zoom: 12,
@@ -34,11 +42,16 @@ export function FleetMap({ state, onSelect }: Props) {
           osm: { type: 'raster', tiles: [TILE_URL], tileSize: 256, attribution: '© OpenStreetMap contributors', maxzoom: 19 },
         },
         layers: [
-          { id: 'bg', type: 'background', paint: { 'background-color': '#161a1f' } },
-          { id: 'osm', type: 'raster', source: 'osm', paint: { 'raster-opacity': 0.55, 'raster-saturation': -0.6, 'raster-brightness-max': 0.7 } },
+          { id: 'bg', type: 'background', paint: { 'background-color': dark ? '#161a1f' : '#e8ebef' } },
+          { id: 'osm', type: 'raster', source: 'osm', paint: dark ? { 'raster-opacity': 0.55, 'raster-saturation': -0.6, 'raster-brightness-max': 0.7 } : { 'raster-opacity': 0.9, 'raster-saturation': -0.4 } },
         ],
       },
-    });
+      });
+    } catch {
+      // no WebGL (for example a headless browser without GPU): the panel still works
+      setFailed(true);
+      return;
+    }
     map.current = m;
     m.on('load', () => {
       m.addSource('geofences', { type: 'geojson', data: empty });
@@ -91,5 +104,9 @@ export function FleetMap({ state, onSelect }: Props) {
     (m.getSource('geofences') as GeoJSONSource | undefined)?.setData(state.geofences as never);
   }, [loaded, state.geofences]);
 
-  return <div ref={el} className="map" aria-label="Live fleet map" />;
+  return (
+    <div ref={el} className="map" aria-label="Live fleet map">
+      {failed ? <p className="empty map-fallback">The map needs WebGL, which this browser does not provide. Live data still updates in the panel.</p> : null}
+    </div>
+  );
 }

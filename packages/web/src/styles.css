@@ -85,3 +85,4 @@ button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .shell { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) minmax(0, 46dvh); }
   .panel { border-left: 0; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; }
 }
+.map-fallback { padding: 24px; }

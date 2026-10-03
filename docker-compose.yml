@@ -45,3 +45,19 @@ services:
       SIM_HZ: ${SIM_HZ:-1}
       SIM_SCENARIOS: ${SIM_SCENARIOS:-loiter,tunnel}
     depends_on: { pipeline: { condition: service_started } }
+  web:
+    image: iot-telemetry-node:dev
+    container_name: iot-telemetry-web
+    working_dir: /app/packages/web
+    command: ["pnpm", "exec", "vite", "preview", "--host", "0.0.0.0", "--port", "5373", "--strictPort"]
+    ports: ["127.0.0.1:5373:5373"]
+    depends_on: { mosquitto: { condition: service_healthy } }
+  e2e:
+    build: { context: ., dockerfile: docker/e2e.Dockerfile }
+    container_name: iot-telemetry-e2e
+    profiles: ["e2e"]
+    working_dir: /app/packages/web
+    command: ["pnpm", "exec", "playwright", "test"]
+    environment: { E2E_BASE_URL: "http://web:5373", E2E_MQTT_URL: "ws://mosquitto:9001" }
+    volumes: ["./docs/media:/app/docs/media"]
+    depends_on: { web: { condition: service_started }, sim: { condition: service_started } }
