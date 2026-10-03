@@ -1,0 +1,10 @@
+node_modules
+**/node_modules
+**/dist
+**/dist-lambda
+**/cdk.out
+var
+.git
+.superpowers
+**/test-results
+**/playwright-report
