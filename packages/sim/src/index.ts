@@ -6,3 +6,5 @@ export * from './vehicle.js';
 export * from './clock.js';
 export * from './scenarios.js';
 export * from './fleet.js';
+export * from './mqtt-sink.js';
+export * from './ndjson.js';
