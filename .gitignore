@@ -1,0 +1,15 @@
+node_modules/
+dist/
+dist-lambda/
+cdk.out/
+coverage/
+test-results/
+playwright-report/
+.env
+.env.*
+!.env.example
+.superpowers/
+# runtime state written by the simulator and the local pipeline
+var/
+certs/
+*.log
