@@ -1,0 +1,47 @@
+name: iot-telemetry
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.1.2-alpine
+    container_name: iot-telemetry-mosquitto
+    ports: ["127.0.0.1:5370:1883", "127.0.0.1:5371:9001"]
+    volumes: ["./docker/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro"]
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -h localhost -t '$$SYS/broker/version' -C 1 -W 3 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  dynamodb:
+    image: amazon/dynamodb-local:3.3.1
+    container_name: iot-telemetry-dynamodb
+    command: ["-jar", "DynamoDBLocal.jar", "-inMemory", "-sharedDb"]
+    ports: ["127.0.0.1:5372:8000"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -o /dev/null http://localhost:8000 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  pipeline:
+    build: { context: ., dockerfile: docker/node.Dockerfile }
+    image: iot-telemetry-node:dev
+    container_name: iot-telemetry-pipeline
+    command: ["node", "packages/local-pipeline/dist/main.js"]
+    environment:
+      MQTT_URL: mqtt://mosquitto:1883
+      GEOFENCE_FILE: data/geofences/depot-north.geojson
+      DATA_DIR: /app/var
+      DYNAMO_URL: http://dynamodb:8000
+      AWS_ACCESS_KEY_ID: local
+      AWS_SECRET_ACCESS_KEY: local
+      AWS_REGION: us-east-1
+      DUPLICATE_RATE: ${DUPLICATE_RATE:-0.2}
+    depends_on: { mosquitto: { condition: service_healthy }, dynamodb: { condition: service_healthy } }
+  sim:
+    image: iot-telemetry-node:dev
+    container_name: iot-telemetry-sim
+    command: ["node", "packages/sim/dist/cli.js", "run"]
+    environment:
+      MQTT_URL: mqtt://mosquitto:1883
+      SIM_COUNT: ${SIM_COUNT:-50}
+      SIM_HZ: ${SIM_HZ:-1}
+      SIM_SCENARIOS: ${SIM_SCENARIOS:-loiter,tunnel}
+    depends_on: { pipeline: { condition: service_started } }
