@@ -3,3 +3,6 @@ export * from './geo.js';
 export * from './routes.js';
 export * from './seq.js';
 export * from './vehicle.js';
+export * from './clock.js';
+export * from './scenarios.js';
+export * from './fleet.js';
