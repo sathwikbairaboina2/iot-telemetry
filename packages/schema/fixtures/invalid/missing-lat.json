@@ -1,0 +1,4 @@
+{
+  "topic": "fleet/veh-0042/telemetry",
+  "payload": {"v":1,"vehicleId":"veh-0042","seq":18234,"ts":"2026-10-03T09:15:02.000Z","lon":11.57549,"speedKph":47.2,"headingDeg":182,"odometerKm":12034.6,"batteryPct":71.5,"ignition":true}
+}
