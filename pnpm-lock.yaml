@@ -30,6 +30,37 @@ importers:
         specifier: 8.71.0
         version: 8.71.0(eslint@10.12.0)(typescript@6.0.3)
 
+  bench:
+    dependencies:
+      '@iot-telemetry/alert-core':
+        specifier: workspace:*
+        version: link:../packages/alert-core
+      '@iot-telemetry/local-pipeline':
+        specifier: workspace:*
+        version: link:../packages/local-pipeline
+      '@iot-telemetry/schema':
+        specifier: workspace:*
+        version: link:../packages/schema
+      '@iot-telemetry/sim':
+        specifier: workspace:*
+        version: link:../packages/sim
+      mqtt:
+        specifier: 5.16.0
+        version: 5.16.0
+    devDependencies:
+      '@types/node':
+        specifier: 24.19.1
+        version: 24.19.1
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vite:
+        specifier: 8.3.2
+        version: 8.3.2(@types/node@24.19.1)(esbuild@0.28.2)(tsx@4.23.15)
+      vitest:
+        specifier: 5.0.3
+        version: 5.0.3(@types/node@24.19.1)(vite@8.3.2(@types/node@24.19.1)(esbuild@0.28.2)(tsx@4.23.15))
+
   infra:
     dependencies:
       '@iot-telemetry/schema':

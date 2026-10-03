@@ -61,3 +61,11 @@ services:
     environment: { E2E_BASE_URL: "http://web:5373", E2E_MQTT_URL: "ws://mosquitto:9001" }
     volumes: ["./docs/media:/app/docs/media"]
     depends_on: { web: { condition: service_started }, sim: { condition: service_started } }
+  bench:
+    image: iot-telemetry-node:dev
+    container_name: iot-telemetry-bench
+    profiles: ["bench"]
+    command: ["node", "bench/dist/run.js"]
+    environment: { MQTT_URL: "mqtt://mosquitto:1883", MQTT_WS_URL: "ws://mosquitto:9001", BENCH_WHERE: compose }
+    volumes: ["./bench/results:/app/bench/results"]
+    depends_on: { mosquitto: { condition: service_healthy } }

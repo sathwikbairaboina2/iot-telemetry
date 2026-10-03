@@ -1,0 +1,47 @@
+{
+  "measuredAt": "2026-10-03T23:43:55.202Z",
+  "environment": {
+    "node": "v24.21.0",
+    "platform": "linux",
+    "broker": "eclipse-mosquitto:2.1.2-alpine",
+    "where": "compose"
+  },
+  "latency": {
+    "vehicles": 200,
+    "hz": 1,
+    "durationS": 60,
+    "sent": 12000,
+    "received": 12000,
+    "latencyMs": {
+      "n": 12000,
+      "p50": 0.2392578125,
+      "p95": 1.6728515625,
+      "p99": 8.8154296875,
+      "max": 1052.3974609375,
+      "mean": 0.7430968831380208
+    }
+  },
+  "alerts": {
+    "seed": 42,
+    "duplicateRate": 0.2,
+    "timelines": 1000,
+    "deliveries": 15156,
+    "naiveAlerts": 7497,
+    "coreAlerts": 4223,
+    "coreEntered": 2358,
+    "referenceCrossings": 4223,
+    "duplicateAlerts": 0,
+    "missedAlerts": 0,
+    "reorder": {
+      "windowMs": 10000,
+      "invariantViolations": 0,
+      "lateIgnored": 183,
+      "missedVsReference": 42
+    },
+    "loiter": {
+      "naiveAlerts": 8,
+      "coreAlerts": 2,
+      "coreEntered": 1
+    }
+  }
+}

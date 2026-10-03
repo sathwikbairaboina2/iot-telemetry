@@ -1,0 +1,22 @@
+{
+  "name": "@iot-telemetry/bench",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:int": "vitest run .int.test --passWithNoTests",
+    "bench": "node dist/run.js"
+  },
+  "dependencies": {
+    "@iot-telemetry/alert-core": "workspace:*",
+    "@iot-telemetry/local-pipeline": "workspace:*",
+    "@iot-telemetry/schema": "workspace:*",
+    "@iot-telemetry/sim": "workspace:*",
+    "mqtt": "5.16.0"
+  },
+  "devDependencies": { "@types/node": "24.19.1", "typescript": "6.0.3", "vitest": "5.0.3", "vite": "8.3.2" }
+}
