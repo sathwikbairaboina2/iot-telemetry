@@ -1,0 +1,48 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm synth
+      - run: pnpm --filter @iot-telemetry/alert-core run pack:check
+
+  integration:
+    needs: check
+    runs-on: ubuntu-latest
+    env:
+      IOT_IT_MQTT_URL: mqtt://localhost:5370
+      IOT_IT_MQTT_WS_URL: ws://localhost:5371
+      IOT_IT_DYNAMO_URL: http://localhost:5372
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: docker compose up -d --wait mosquitto dynamodb
+      - run: pnpm test:int
+      - if: always()
+        run: docker compose down
