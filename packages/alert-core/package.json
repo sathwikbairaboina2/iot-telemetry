@@ -4,13 +4,30 @@
   "description": "Pure geofence alert state machine: dwell, hysteresis, dedupe and late-event handling, one alert per real crossing.",
   "license": "MIT",
   "type": "module",
-  "exports": { ".": { "source": "./src/index.ts", "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
-  "files": ["dist", "README.md", "LICENSE"],
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "test:int": "vitest run .int.test --passWithNoTests"
+    "test:int": "vitest run .int.test --passWithNoTests",
+    "pack:check": "npm pack --dry-run"
   },
-  "devDependencies": { "@types/node": "24.19.1", "fast-check": "4.10.2", "typescript": "6.0.3", "vitest": "5.0.3", "vite": "8.3.2" }
+  "devDependencies": {
+    "@types/node": "24.19.1",
+    "fast-check": "4.10.2",
+    "typescript": "6.0.3",
+    "vite": "8.3.2",
+    "vitest": "5.0.3"
+  }
 }
