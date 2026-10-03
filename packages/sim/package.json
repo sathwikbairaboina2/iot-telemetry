@@ -1,0 +1,17 @@
+{
+  "name": "@iot-telemetry/sim",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "bin": { "iot-sim": "dist/cli.js" },
+  "exports": { ".": { "source": "./src/index.ts", "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:int": "vitest run .int.test --passWithNoTests"
+  },
+  "dependencies": { "@iot-telemetry/schema": "workspace:*", "mqtt": "5.16.0" },
+  "devDependencies": { "@types/node": "24.19.1", "typescript": "6.0.3", "vitest": "5.0.3", "vite": "8.3.2" }
+}

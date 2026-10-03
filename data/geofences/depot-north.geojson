@@ -1,0 +1,13 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "id": "depot-north", "name": "Depot North" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[11.560, 48.150], [11.575, 48.150], [11.575, 48.158], [11.560, 48.158], [11.560, 48.150]]]
+      }
+    }
+  ]
+}
