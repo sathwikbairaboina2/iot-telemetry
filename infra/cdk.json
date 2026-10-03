@@ -1,0 +1,1 @@
+{ "app": "npx tsx --conditions=source bin/app.ts", "context": {} }
