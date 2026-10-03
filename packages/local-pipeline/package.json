@@ -1,0 +1,27 @@
+{
+  "name": "@iot-telemetry/local-pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": { ".": { "source": "./src/index.ts", "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:int": "vitest run .int.test --passWithNoTests",
+    "start": "node dist/main.js"
+  },
+  "dependencies": {
+    "@iot-telemetry/schema": "workspace:*",
+    "@iot-telemetry/alert-core": "workspace:*",
+    "@iot-telemetry/alert-lambda": "workspace:*",
+    "@iot-telemetry/sim": "workspace:*",
+    "@turf/boolean-point-in-polygon": "7.4.0",
+    "@turf/helpers": "7.4.0",
+    "mqtt": "5.16.0",
+    "@aws-sdk/client-dynamodb": "3.1146.0",
+    "@aws-sdk/lib-dynamodb": "3.1146.0"
+  },
+  "devDependencies": { "@types/node": "24.19.1", "typescript": "6.0.3", "vitest": "5.0.3", "vite": "8.3.2" }
+}
