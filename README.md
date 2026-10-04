@@ -1,6 +1,16 @@
-# iot-telemetry
+# 🛰️ iot-telemetry
+
+> Fleet telemetry and geofence alerts. Noisy, duplicated geofence events become one alert per real crossing.
 
 A simulated vehicle fleet publishes telemetry over MQTT. One set of IoT Rule SQL routes it locally (Mosquitto) and in AWS (IoT Core, CDK). A small, pure alert core turns noisy and duplicated geofence events into exactly one alert per real crossing. A live MapLibre map shows the fleet and the alerts.
+
+<!-- readme-header -->
+[![CI](https://github.com/sathwikbairaboina2/iot-telemetry/actions/workflows/ci.yml/badge.svg)](https://github.com/sathwikbairaboina2/iot-telemetry/actions/workflows/ci.yml) ![License: MIT](https://img.shields.io/badge/license-MIT-blue) ![TypeScript](https://img.shields.io/badge/-TypeScript-555) ![MQTT](https://img.shields.io/badge/-MQTT-555) ![AWS IoT](https://img.shields.io/badge/-AWS%20IoT-555)
+
+| Measured | Source |
+|---|---|
+| **p99 7.2 ms** | `bench/results/latest.json` |
+| **0 duplicate alerts** | `bench/results/latest.json` |
 
 **Measured:** 200 simulated vehicles at 1 Hz, 12000 messages sent and 12000 received, p99 7.2 ms publish-to-subscriber over MQTT-over-WebSockets. Across 1000 fuzzed geofence timelines (alternating ENTER/EXIT, as a geofence service emits them) with duplicate deliveries, naive alerting fired 7829 ENTER alerts for 15625 deliveries; the alert core fired 3184 ENTERED alerts, and 5896 alerts counting EXITED too, exactly the 5896 crossings of an independent reference model (0 duplicates, 0 missed). Numbers come from `bench/results/latest.json`; see [Benchmark](#benchmark).
 
