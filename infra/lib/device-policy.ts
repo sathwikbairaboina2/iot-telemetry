@@ -5,7 +5,7 @@ import { Construct } from 'constructs';
 // Single quotes on purpose: this is an IoT policy variable, not a template literal.
 const THING = '${iot:Connection.Thing.ThingName}';
 
-/** Least privilege: a device may connect as itself and publish only to its own telemetry and status topics. */
+/** Least privilege: a device may connect as itself and publish only to its own telemetry and status topics (retained only on status). */
 export function devicePolicyDocument(stack: Stack): Record<string, unknown> {
   const arn = (resource: string, resourceName: string) =>
     stack.formatArn({ service: 'iot', resource, resourceName, arnFormat: ArnFormat.SLASH_RESOURCE_NAME });
@@ -18,6 +18,8 @@ export function devicePolicyDocument(stack: Stack): Record<string, unknown> {
         Action: 'iot:Publish',
         Resource: [arn('topic', `fleet/${THING}/telemetry`), arn('topic', `fleet/${THING}/status`)],
       },
+      // retained publishes (the status topic and the Last Will) need their own action in AWS IoT Core
+      { Effect: 'Allow', Action: 'iot:RetainPublish', Resource: arn('topic', `fleet/${THING}/status`) },
     ],
   };
 }
