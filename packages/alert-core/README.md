@@ -53,4 +53,10 @@ const r = step(initialState, events[0]!, DEFAULT_CONFIG); // { state, emitted, o
   counts, not hidden, and some real crossings can be missed.
 - There is no reorder buffer in v0.1.
 
+## Test oracle
+
+`referenceAlerts(events, horizon, config)` is exported too. It is an independent, deliberately simple model of the same
+semantics that the tests and the benchmark compare `step()` against. It is public so you can fuzz your own integration
+the same way, but it is a test oracle, not a second implementation to run in production.
+
 MIT licensed.
