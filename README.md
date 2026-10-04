@@ -24,7 +24,18 @@ docker compose up -d --build
 
 Open <http://localhost:5373>. You will see about 50 vehicles moving around Munich, the Depot North geofence, and a live alert list. Two scripted vehicles run alongside the fleet. `veh-9001` hovers across the depot edge for a minute, then parks inside: naive alerting would fire on every crossing, the core fires one ENTERED about 2 minutes in and one EXITED later. `veh-9002` drives into the depot while its radio is down; its buffered messages are replayed afterwards and the alerts come out the same as an uninterrupted run.
 
-Stop everything with `docker compose down`. Ports used on the host: 5370 (MQTT), 5371 (MQTT over WebSockets), 5372 (DynamoDB Local), 5373 (web).
+Stop everything with `docker compose down`. Ports used on the host (bound to 127.0.0.1): 5370 (MQTT), 5371 (MQTT over WebSockets), 5372 (DynamoDB Local), 5373 (web).
+
+## Configuration
+
+Compose reads these from the environment or a `.env` file; defaults are in [`.env.example`](.env.example).
+
+| Variable | Used by |
+|---|---|
+| `SIM_COUNT` | simulator: number of vehicles |
+| `SIM_HZ` | simulator: messages per vehicle per second |
+| `SIM_SCENARIOS` | simulator: scripted vehicles to add (`loiter`, `tunnel`) |
+| `DUPLICATE_RATE` | local pipeline: share of geofence events delivered twice |
 
 ## Why this exists
 
@@ -60,11 +71,8 @@ The cloud half is proven by `cdk synth`, assertion tests and cdk-nag. It has not
 
 ## Install the alert core
 
-```sh
-npm i @iot-telemetry/alert-core
-```
-
-Not yet published to npm. Build the tarball with `pnpm --filter @iot-telemetry/alert-core pack`, or run the check below.
+Not yet published to npm. To get a tarball, run `pnpm build` and then `pnpm pack` inside `packages/alert-core`
+(`pack:check` in [Development](#development) lists its contents).
 
 ```ts
 import { run, DEFAULT_CONFIG, type CoreEvent } from '@iot-telemetry/alert-core';
