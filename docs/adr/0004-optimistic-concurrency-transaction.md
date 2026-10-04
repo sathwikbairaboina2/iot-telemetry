@@ -12,7 +12,9 @@ duplicate events that change nothing skip the write.
 
 ## What I gave up
 
-- **Exactly-once notifications.** Alert *records* cannot be duplicated (the alert key is deterministic and
-  conditioned), but a crash between commit and publish loses that SNS message, and a retry after a publish error can
-  send it twice. Notifications are at-least-once with `alertId` for consumer dedupe. An outbox via DynamoDB Streams is v0.2.
+- **Reliable notifications.** Alert *records* cannot be duplicated (the alert key is deterministic and
+  conditioned), but notifications are at-most-once. A crash between commit and publish, or a publish error, loses that
+  SNS message: a retry reloads the state, finds the event already applied (`duplicate` or `late_ignored`) and publishes
+  nothing. The alert record stays in DynamoDB. An outbox via DynamoDB Streams in v0.2 would make delivery at-least-once
+  (consumers would dedupe on `alertId`).
 - **Throughput on a hot pair.** Every event for a pair is a read plus a transaction. Fine at geofence-event rates.

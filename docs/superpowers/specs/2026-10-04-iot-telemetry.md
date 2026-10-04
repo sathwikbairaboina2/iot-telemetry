@@ -144,13 +144,14 @@ Compose project `iot-telemetry`; every container name starts with `iot-telemetry
 | Metric | How |
 |---|---|
 | Publish -> MQTT-WS subscriber latency p50/p95/p99/max | `bench latency`: 200 vehicles at 1 Hz for 60 s through the sim engine; publish time and receive time from `performance.now()` in one process; subscriber uses WebSockets (the browser path). Also `sent`, `received`. |
-| Alert correctness under duplicate delivery | `bench alerts`: 1 000 seeded random timelines with duplicate deliveries; counts naive alerts (one per raw ENTER delivery), core alerts, reference crossings, duplicates (core minus reference, by id), misses. |
+| Alert correctness under duplicate delivery | `bench alerts`: 1 000 seeded random timelines with duplicate deliveries; counts naive alerts (one per raw ENTER delivery; timelines alternate ENTER/EXIT so no delivery repeats the current state), core alerts (ENTERED plus EXITED) and core ENTERED alerts (the like-for-like figure against naive), reference crossings, duplicates (core minus reference, by id), misses. |
 | Reordering behavior | Same timelines shuffled within a 10 s window: invariant violations (must be 0), `late_ignored` count, alerts missed vs reference (reported as is). |
 | Loiter scenario | `loiter` replayed through the pipeline: naive alert count vs core alert count (expected core: exactly 1 ENTERED, 1 EXITED). |
 
 README headline template (numbers filled only from `latest.json`):
 "200 simulated vehicles at 1 Hz: p99 {p99Ms} ms publish-to-subscriber over MQTT-WS. Across 1,000 fuzzed geofence
-timelines with duplicate deliveries, naive alerting fired {naiveAlerts} alerts; the alert core fired exactly the
+timelines (alternating ENTER/EXIT, as a geofence service emits them) with duplicate deliveries, naive alerting fired
+{naiveAlerts} ENTER alerts; the alert core fired {coreEntered} ENTERED alerts, and {coreAlerts} alerts counting EXITED, exactly the
 {referenceCrossings} real crossings (0 duplicates, 0 missed)." If a measured value contradicts the template (for example
 duplicates > 0), the README states the measured value and the template changes, never the number.
 
@@ -163,7 +164,7 @@ pnpm typecheck
 pnpm test                    # unit + property; integration files skip without env vars
 pnpm build
 pnpm synth                   # cdk synth with cdk-nag v3 (AwsSolutions); exit 0
-pnpm --filter @iot-telemetry/alert-core pack --dry-run   # tarball lists dist/, README.md, LICENSE, package.json only
+pnpm --filter @iot-telemetry/alert-core run pack:check   # tarball lists dist/, README.md, LICENSE, package.json only (npm pack --dry-run; pnpm 9.12.0 has no pack --dry-run, Ruling 3)
 docker compose up -d --wait mosquitto dynamodb
 $env:IOT_IT_MQTT_URL='mqtt://localhost:5370'; $env:IOT_IT_MQTT_WS_URL='ws://localhost:5371'; $env:IOT_IT_DYNAMO_URL='http://localhost:5372'; pnpm test:int
 docker compose down
