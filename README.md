@@ -2,7 +2,7 @@
 
 A simulated vehicle fleet publishes telemetry over MQTT. One set of IoT Rule SQL routes it locally (Mosquitto) and in AWS (IoT Core, CDK). A small, pure alert core turns noisy and duplicated geofence events into exactly one alert per real crossing. A live MapLibre map shows the fleet and the alerts.
 
-**Measured:** 200 simulated vehicles at 1 Hz, 12000 messages sent and 12000 received, p99 8.8 ms publish-to-subscriber over MQTT-over-WebSockets. Across 1000 fuzzed geofence timelines with duplicate deliveries, naive alerting (one alert per ENTER delivery) fired 7497 alerts; the alert core fired 4223 alerts, exactly the 4223 real crossings (0 duplicates, 0 missed). Numbers come from `bench/results/latest.json`; see [Benchmark](#benchmark).
+**Measured:** 200 simulated vehicles at 1 Hz, 12000 messages sent and 12000 received, p99 7.2 ms publish-to-subscriber over MQTT-over-WebSockets. Across 1000 fuzzed geofence timelines (alternating ENTER/EXIT, as a geofence service emits them) with duplicate deliveries, naive alerting fired 7829 ENTER alerts for 15625 deliveries; the alert core fired 3184 ENTERED alerts, and 5896 alerts counting EXITED too, exactly the 5896 crossings of an independent reference model (0 duplicates, 0 missed). Numbers come from `bench/results/latest.json`; see [Benchmark](#benchmark).
 
 ![Live fleet map](docs/media/map.png)
 
@@ -71,35 +71,35 @@ console.log(run(events, DEFAULT_CONFIG).alerts); // one ENTERED alert
 
 Reproduce with `docker compose --profile bench run --rm bench`. It writes `bench/results/latest.json`.
 
-Measured 2026-10-03T23:43:55.202Z, `where: compose`, Node v24.21.0 on linux, broker `eclipse-mosquitto:2.1.2-alpine`. Publisher and subscriber run in one process on one clock.
+Measured 2026-10-04T00:37:00.409Z, `where: compose`, Node v24.21.0 on linux, broker `eclipse-mosquitto:2.1.2-alpine`. Publisher and subscriber run in one process on one clock.
 
 | Publish to subscriber latency (200 vehicles, 1 Hz, 60 s) | Value |
 |---|---|
 | sent | 12000 |
 | received | 12000 |
-| p50 (ms) | 0.2392578125 |
-| p95 (ms) | 1.6728515625 |
-| p99 (ms) | 8.8154296875 |
-| max (ms) | 1052.3974609375 |
-| mean (ms) | 0.7430968831380208 |
+| p50 (ms) | 0.287841796875 |
+| p95 (ms) | 2.1865234375 |
+| p99 (ms) | 7.212890625 |
+| max (ms) | 256.843505859375 |
+| mean (ms) | 0.6868959147135417 |
 
 The max is a single slow outlier; one run is not a distribution of runs.
 
 | Alert correctness (1000 seeded timelines, seed 42, duplicate rate 0.2) | Value |
 |---|---|
-| deliveries (events plus redeliveries) | 15156 |
-| naive alerts (one per ENTER delivery) | 7497 |
-| core alerts (ENTERED plus EXITED) | 4223 |
-| core ENTERED alerts | 2358 |
-| reference crossings (independent model) | 4223 |
+| deliveries (events plus redeliveries) | 15625 |
+| naive alerts (one per ENTER delivery) | 7829 |
+| core alerts (ENTERED plus EXITED) | 5896 |
+| core ENTERED alerts (compare with naive) | 3184 |
+| reference crossings (independent model) | 5896 |
 | duplicate alerts | 0 |
 | missed alerts | 0 |
 
 | Reordering inside a 10000 ms window | Value |
 |---|---|
 | invariant violations | 0 |
-| events dropped as late | 183 |
-| crossings missed versus the reference | 42 |
+| events dropped as late | 182 |
+| crossings missed versus the reference | 64 |
 
 Loiter scenario through the full pipeline: 8 naive ENTER alerts, 2 core alerts (1 ENTERED, 1 EXITED).
 
@@ -121,7 +121,8 @@ Loiter scenario through the full pipeline: 8 naive ENTER alerts, 2 core alerts (
 - Routes are synthetic loops around Munich, and the map uses public OpenStreetMap raster tiles.
 - Timestream is not used (see ADR 0003).
 - In the cloud, dwell confirmation can lag by up to 60 s because the sweep runs once a minute.
-- Alerts are published to SNS after the database commit, so delivery is at-least-once at best, and a publish failure after a commit is not retried.
+- Alerts are published to SNS after the database commit, so notifications are at-most-once: if the publish fails after the commit, a retry finds the event already applied and publishes nothing, so that notification is lost. The alert record stays in DynamoDB. A DynamoDB Streams outbox in v0.2 would make delivery at-least-once.
+- The cloud `Latest` table is overwritten by each arriving message, so replayed older messages (the tunnel scenario) move a vehicle's latest position backwards. Locally the pipeline and the web reducer keep the highest `seq`. An IoT rule action cannot do a conditional write; a Lambda would be needed (v0.2).
 - The core guarantees safety under reordering but not completeness; there is no reorder buffer in v0.1.
 
 ## Development

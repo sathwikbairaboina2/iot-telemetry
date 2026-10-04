@@ -7,6 +7,7 @@ test('50 seeded timelines: no duplicates, no misses, no reorder violations, and 
   expect(r.missedAlerts).toBe(0);
   expect(r.reorder.invariantViolations).toBe(0);
   expect(r.naiveAlerts).toBeGreaterThan(r.coreAlerts);
+  expect(r.naiveAlerts).toBeGreaterThan(r.coreEntered);
   expect(r.coreAlerts).toBe(r.referenceCrossings);
   expect(r.loiter.coreEntered).toBe(1);
 });

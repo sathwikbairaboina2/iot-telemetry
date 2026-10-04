@@ -1,14 +1,16 @@
 import type { GeofenceEvent } from '@iot-telemetry/alert-core';
 import type { Rng } from '@iot-telemetry/sim';
 
-/** Random ENTER/EXIT sequences with 0-120 s gaps, sorted by time (the same shape as the alert-core fuzz arbitrary). */
+/** ENTER/EXIT sequences with 0-120 s gaps that strictly alternate, as a geofence service emits them (only on a state change). */
 export function randomTimeline(rng: Rng, opts: { maxEvents: number }): GeofenceEvent[] {
   const n = 1 + Math.floor(rng() * opts.maxEvents);
   let ts = 0;
+  let enter = rng() < 0.5;
   const out: GeofenceEvent[] = [];
   for (let i = 0; i < n; i++) {
     ts += Math.floor(rng() * 121) * 1000;
-    out.push({ kind: rng() < 0.5 ? 'ENTER' : 'EXIT', eventId: `e${i}`, vehicleId: 'v', geofenceId: 'g', deviceTs: ts });
+    out.push({ kind: enter ? 'ENTER' : 'EXIT', eventId: `e${i}`, vehicleId: 'v', geofenceId: 'g', deviceTs: ts });
+    enter = !enter;
   }
   return out;
 }

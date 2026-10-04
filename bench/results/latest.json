@@ -1,5 +1,5 @@
 {
-  "measuredAt": "2026-10-03T23:43:55.202Z",
+  "measuredAt": "2026-10-04T00:37:00.409Z",
   "environment": {
     "node": "v24.21.0",
     "platform": "linux",
@@ -14,29 +14,29 @@
     "received": 12000,
     "latencyMs": {
       "n": 12000,
-      "p50": 0.2392578125,
-      "p95": 1.6728515625,
-      "p99": 8.8154296875,
-      "max": 1052.3974609375,
-      "mean": 0.7430968831380208
+      "p50": 0.287841796875,
+      "p95": 2.1865234375,
+      "p99": 7.212890625,
+      "max": 256.843505859375,
+      "mean": 0.6868959147135417
     }
   },
   "alerts": {
     "seed": 42,
     "duplicateRate": 0.2,
     "timelines": 1000,
-    "deliveries": 15156,
-    "naiveAlerts": 7497,
-    "coreAlerts": 4223,
-    "coreEntered": 2358,
-    "referenceCrossings": 4223,
+    "deliveries": 15625,
+    "naiveAlerts": 7829,
+    "coreAlerts": 5896,
+    "coreEntered": 3184,
+    "referenceCrossings": 5896,
     "duplicateAlerts": 0,
     "missedAlerts": 0,
     "reorder": {
       "windowMs": 10000,
       "invariantViolations": 0,
-      "lateIgnored": 183,
-      "missedVsReference": 42
+      "lateIgnored": 182,
+      "missedVsReference": 64
     },
     "loiter": {
       "naiveAlerts": 8,
