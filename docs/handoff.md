@@ -25,3 +25,11 @@ What changed: committed the review fixes left by a crashed run. The bench timeli
 What is left: v0.2 items above; sim vitest timeout raised to 30 s after one unexplained flaky failure of the ndjson test.
 
 How to verify: README "Development" gates; test totals 175 passed / 7 skipped; `test:int` 7 passed.
+
+## 2026-10-04 - Claude (Opus lead, verify) - main
+
+What changed: reviewed the review-fix diff (c44f1a6..bd46977). Fixed one bug: the local pipeline cached a rejected restart seed (`repo.listPending()`), so one DynamoDB hiccup at startup made every later message fail until restart. It now retries the seed on the next message (regression test added). DEVDOCS now covers all eight ADRs, with accurate e2e notes. `docs/media/map.png` was refreshed by the e2e run.
+
+What is left: v0.2 list in DEVDOCS section 7 (real AWS deploy and certificates, read API, Cognito, outbox for SNS, reorder buffer, Device Shadow). There is no AWS deploy proof (no LocalStack token). The bench was not re-run this session; README numbers match `bench/results/latest.json` (2026-10-04T00:37Z). The sim ndjson test timeout is raised to 30 s; its one flaky failure was not reproduced.
+
+How to verify (real output this session): install --frozen-lockfile ok; lint ok; typecheck ok; test 176 passed / 7 skipped; build exit 0; synth exit 0; pack:check 13 files; test:int 7 passed (Mosquitto + DynamoDB Local); compose build (all profiles) exit 0; e2e 1 passed (57.3 s); smoke: web 200, pipeline logged "ALERT ENTERED veh-0049 depot-north"; compose down, no iot-telemetry containers left.

@@ -79,4 +79,16 @@ describe('pipeline', () => {
     await p.handle(topic, JSON.stringify(msg(9, 120, 48.1)));
     expect(publisher.published.map((a) => a.type)).toEqual(['ENTERED']);
   });
+
+  test('a failed restart seed is retried on the next message, not cached', async () => {
+    const repo = new MemoryAlertStateRepo();
+    const real = repo.listPending.bind(repo);
+    let calls = 0;
+    repo.listPending = async () => { calls++; if (calls === 1) throw new Error('dynamo down'); return real(); };
+    const p = createPipeline({ repo, publisher: new CollectingPublisher(), config: DEFAULT_CONFIG, geofences, history: new MemorySink<Telemetry>(), quarantine: new MemorySink<QuarantineRecord>() });
+    await expect(p.handle(topic, JSON.stringify(msg(1, 0, 48.1)))).rejects.toThrow('dynamo down');
+    await p.handle(topic, JSON.stringify(msg(2, 1, 48.1)));
+    expect(calls).toBe(2);
+    expect(p.stats().valid).toBe(1);
+  });
 });

@@ -57,18 +57,20 @@ pnpm --filter @iot-telemetry/alert-core run pack:check
 docker compose up -d --wait mosquitto dynamodb
 $env:IOT_IT_MQTT_URL='mqtt://localhost:5370'; $env:IOT_IT_MQTT_WS_URL='ws://localhost:5371'; $env:IOT_IT_DYNAMO_URL='http://localhost:5372'; pnpm test:int
 docker compose down
-docker compose --profile e2e run --rm e2e       # needs the stack up
+docker compose --profile e2e run --rm e2e       # starts the stack it needs, rewrites docs/media/map.png
 docker compose --profile bench run --rm bench   # writes bench/results/latest.json
 ```
 
 ## 6. Key decisions and what they gave up
 
+- [ADR 0001](adr/0001-pure-alert-core-debounce.md) A pure, device-time alert core with dwell and hysteresis: a late event is dropped, not merged, so reordering can miss a crossing.
 - [ADR 0002](adr/0002-local-stand-ins-without-localstack.md) DynamoDB Local and Mosquitto instead of LocalStack: no deploy proof.
 - [ADR 0003](adr/0003-history-firehose-s3-not-timestream.md) Firehose to S3 plus a DynamoDB latest table instead of Timestream (in maintenance mode): no time-bucket queries.
 - [ADR 0004](adr/0004-optimistic-concurrency-transaction.md) Optimistic-concurrency transactions: notifications are at-most-once; an outbox is v0.2.
+- [ADR 0005](adr/0005-ticks-local-per-message-cloud-sweep.md) Dwell ticks come from each message locally and from a 1-minute sweep in the cloud: cloud alerts can lag by up to 60 s.
+- [ADR 0006](adr/0006-sim-seq-reserved-blocks.md) The simulator reserves `seq` in persisted blocks: a restart skips up to 999 numbers.
 - [ADR 0007](adr/0007-toolchain-and-versions.md) TypeScript 6.0.3 pinned by the lint plugin peer range: no TS 7 speed.
-
-See `docs/adr/` for all eight.
+- [ADR 0008](adr/0008-host-ports-and-demo-data.md) Ports 5370-5373, synthetic loops and OSM raster tiles: no road snapping, and the map needs internet for tiles.
 
 ## 7. Known limits and what's left
 

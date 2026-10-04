@@ -45,7 +45,7 @@ export function createPipeline(deps: PipelineDeps): Pipeline {
       set.add(geofenceId);
       pending.set(vehicleId, set);
     }
-  }));
+  }, (err: unknown) => { seeded = undefined; throw err; })); // a failed seed is retried, never cached
 
   const track = (r: HandleResult, vehicleId: string, geofenceId: string): void => {
     outcomes[r.outcome]++;
