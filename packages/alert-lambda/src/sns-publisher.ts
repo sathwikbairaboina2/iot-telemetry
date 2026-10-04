@@ -2,7 +2,7 @@ import { PublishCommand, type SNSClient } from '@aws-sdk/client-sns';
 import type { Alert } from '@iot-telemetry/alert-core';
 import type { AlertPublisher } from './repo.js';
 
-/** Publishes after the DynamoDB commit, so delivery is at-least-once at best (see the limits in the README). */
+/** Publishes after the DynamoDB commit, so notifications are at-most-once: a publish failure drops that notification (the alert record stays in DynamoDB; see the README limits). */
 export class SnsAlertPublisher implements AlertPublisher {
   constructor(private readonly client: SNSClient, private readonly topicArn: string) {}
 

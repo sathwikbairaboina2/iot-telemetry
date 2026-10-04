@@ -51,4 +51,16 @@ describe('handleCoreEvent', () => {
     expect(commit).toHaveBeenCalledTimes(5);
     expect(publisher.published).toHaveLength(0);
   });
+
+  test('a publish failure after commit is not retried: at-most-once notifications', async () => {
+    const repo = new MemoryAlertStateRepo();
+    const publish = vi.fn().mockRejectedValueOnce(new Error('sns down')).mockResolvedValue(undefined);
+    const deps = { repo, publisher: { publish }, config };
+    await handleCoreEvent(enter('e1', 0), deps);
+    const tickEvent = tick(61_000);
+    await expect(handleCoreEvent(tickEvent, deps)).rejects.toThrow('sns down');
+    expect(repo.alerts()).toHaveLength(1);
+    await handleCoreEvent(tickEvent, deps); // the retry finds the state already committed
+    expect(publish).toHaveBeenCalledTimes(1);
+  });
 });
