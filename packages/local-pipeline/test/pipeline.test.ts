@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { DEFAULT_CONFIG } from '@iot-telemetry/alert-core';
-import { CollectingPublisher, MemoryAlertStateRepo } from '@iot-telemetry/alert-lambda';
+import { CollectingPublisher, MemoryAlertStateRepo, handleCoreEvent } from '@iot-telemetry/alert-lambda';
 import { loadFixtures, type Telemetry } from '@iot-telemetry/schema';
 import { MemorySink, createPipeline, loadGeofences, type QuarantineRecord } from '../src/index.js';
 
@@ -67,5 +67,16 @@ describe('pipeline', () => {
     await p.handle(topic, JSON.stringify(msg(3, 75, 48.154)));
     expect(publisher.published.map((a) => [a.type, a.confirmedAt])).toEqual([['ENTERED', Date.UTC(2026, 9, 4, 8, 1, 10)]]);
     expect(p.stats().alerts).toBe(1);
+  });
+
+  test('a restarted pipeline resumes a pending dwell from the repo', async () => {
+    const repo = new MemoryAlertStateRepo();
+    const publisher = new CollectingPublisher();
+    const mk = () => createPipeline({ repo, publisher, config: DEFAULT_CONFIG, geofences, history: new MemorySink<Telemetry>(), quarantine: new MemorySink<QuarantineRecord>() });
+    // a pair left PENDING_IN by a previous process
+    await handleCoreEvent({ kind: 'ENTER', eventId: 'e1', vehicleId: 'veh-0042', geofenceId: 'depot-north', deviceTs: Date.UTC(2026, 9, 4, 8, 0, 0) }, { repo, publisher, config: DEFAULT_CONFIG });
+    const p = mk();
+    await p.handle(topic, JSON.stringify(msg(9, 120, 48.1)));
+    expect(publisher.published.map((a) => a.type)).toEqual(['ENTERED']);
   });
 });

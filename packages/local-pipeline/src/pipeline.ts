@@ -37,6 +37,16 @@ export function createPipeline(deps: PipelineDeps): Pipeline {
   };
   const handleDeps = { repo: deps.repo, publisher, config: deps.config };
 
+  // The pending index is memory only, so rebuild it once from the repo: a restart must not strand an in-progress dwell.
+  let seeded: Promise<void> | undefined;
+  const seedPending = (): Promise<void> => (seeded ??= deps.repo.listPending().then((pairs) => {
+    for (const { vehicleId, geofenceId } of pairs) {
+      const set = pending.get(vehicleId) ?? new Set<string>();
+      set.add(geofenceId);
+      pending.set(vehicleId, set);
+    }
+  }));
+
   const track = (r: HandleResult, vehicleId: string, geofenceId: string): void => {
     outcomes[r.outcome]++;
     const set = pending.get(vehicleId) ?? new Set<string>();
@@ -46,6 +56,7 @@ export function createPipeline(deps: PipelineDeps): Pipeline {
 
   return {
     async handle(topic, payload) {
+      await seedPending();
       counts.received++;
       const routed = routeMessage(topic, payload);
       if (routed.kind === 'quarantine') {
